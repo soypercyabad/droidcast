@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.exe
+
+# PyInstaller
+*.manifest
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# User config (personal data)
+config.json
+config.pkl
+
+# scrcpy downloads (users download their own)
+scrcpy-*/
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Gemini AI
+.gemini/
