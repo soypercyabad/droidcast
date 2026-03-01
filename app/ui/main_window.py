@@ -80,7 +80,7 @@ def start():
     root.configure(fg_color=Theme.BG)
 
     try:
-        icon_path = os.path.join(config.BASE_DIR, "assets", "robot.ico")
+        icon_path = os.path.join(config.ASSETS_DIR, "assets", "robot.ico")
         if os.path.exists(icon_path):
             root.iconbitmap(icon_path)
     except Exception:
@@ -369,7 +369,7 @@ def start():
     # ══════════════════════════════════════════════════════════════════════
 
     # ── BANNER ───────────────────────────────────────────────────────────
-    banner_path = os.path.join(config.BASE_DIR, "assets", "banner.png")
+    banner_path = os.path.join(config.ASSETS_DIR, "assets", "banner.png")
     target_w, target_h = 820, 105
     try:
         banner_img = Image.open(banner_path)

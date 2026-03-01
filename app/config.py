@@ -12,8 +12,10 @@ logger = logging.getLogger(__name__)
 # ── Directorio base (compatible con PyInstaller) ─────────────────────────────
 if getattr(sys, "frozen", False):
     BASE_DIR = os.path.dirname(sys.executable)
+    ASSETS_DIR = sys._MEIPASS  # Recursos empaquetados por PyInstaller
 else:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ASSETS_DIR = BASE_DIR
 
 CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 
