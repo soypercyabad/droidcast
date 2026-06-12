@@ -21,22 +21,32 @@ CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 
 
 def load():
-    """Carga (root_path, ip, port) desde config.json."""
+    """Carga (root_path, ip, port, phone_frame) desde config.json."""
     try:
         if os.path.exists(CONFIG_FILE):
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            return data.get("root_path", ""), data.get("ip", ""), data.get("port", "")
+            return (
+                data.get("root_path", ""), 
+                data.get("ip", ""), 
+                data.get("port", ""),
+                data.get("phone_frame", True)
+            )
     except (json.JSONDecodeError, IOError) as e:
         logger.warning(f"Error al cargar configuración: {e}")
-    return "", "", ""
+    return "", "", "", True
 
 
-def save(root_path, ip, port=""):
+def save(root_path, ip, port="", phone_frame=True):
     """Guarda la configuración en config.json."""
     try:
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump({"root_path": root_path, "ip": ip, "port": port}, f, indent=2)
+            json.dump({
+                "root_path": root_path, 
+                "ip": ip, 
+                "port": port,
+                "phone_frame": phone_frame
+            }, f, indent=2)
     except IOError as e:
         logger.error(f"Error al guardar configuración: {e}")
 

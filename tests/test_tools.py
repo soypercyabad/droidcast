@@ -67,7 +67,7 @@ class TestConfig(unittest.TestCase):
         cfg.CONFIG_FILE = self.config_file
         try:
             cfg.save("/ruta/test", "192.168.1.50", "5555")
-            path, ip, port = cfg.load()
+            path, ip, port, _ = cfg.load()
             self.assertEqual(path, "/ruta/test")
             self.assertEqual(ip, "192.168.1.50")
             self.assertEqual(port, "5555")
@@ -79,7 +79,7 @@ class TestConfig(unittest.TestCase):
         original = cfg.CONFIG_FILE
         cfg.CONFIG_FILE = os.path.join(self.temp_dir, "nonexistent.json")
         try:
-            path, ip, port = cfg.load()
+            path, ip, port, _ = cfg.load()
             self.assertEqual(path, "")
             self.assertEqual(ip, "")
             self.assertEqual(port, "")
@@ -93,7 +93,7 @@ class TestConfig(unittest.TestCase):
         try:
             with open(self.config_file, "w") as f:
                 f.write("{{{invalid json")
-            path, ip, port = cfg.load()
+            path, ip, port, _ = cfg.load()
             self.assertEqual(path, "")
             self.assertEqual(ip, "")
             self.assertEqual(port, "")

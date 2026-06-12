@@ -21,12 +21,19 @@ def get_adb_path():
     return "adb"
 
 
-def run_adb(args):
-    """Ejecuta un comando ADB. Retorna (stdout, stderr, returncode)."""
+def run_adb(args, timeout: int = 120):
+    """
+    Ejecuta un comando ADB. Retorna (stdout, stderr, returncode).
+
+    Args:
+        args:    lista de argumentos ADB (sin el ejecutable).
+        timeout: segundos máximos de espera. Usar valores pequeños (8-15)
+                 para comandos rápidos como getprop o devices.
+    """
     try:
         result = subprocess.run(
             [get_adb_path()] + args,
-            capture_output=True, text=True, timeout=120,
+            capture_output=True, text=True, timeout=timeout,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
         return result.stdout, result.stderr, result.returncode

@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import threading
 import logging
+import time
 import urllib.request
 import zipfile
 import winreg
@@ -192,7 +193,7 @@ def download_and_extract(root):
                     )
                 except Exception:
                     pass
-            import time; time.sleep(2)
+            time.sleep(2)
 
             overlay.update_status("Eliminando versión anterior...")
             overlay.update_progress(0.96)
@@ -207,7 +208,7 @@ def download_and_extract(root):
                         [new_adb, "start-server"],
                         capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW,
                     )
-                    _, saved_ip, saved_port = load()
+                    _, saved_ip, saved_port, _ = load()
                     if saved_ip:
                         port = saved_port or "5555"
                         subprocess.run(
@@ -219,7 +220,7 @@ def download_and_extract(root):
 
             overlay.update_progress(1.0)
             overlay.update_status("¡Completado!")
-            import time; time.sleep(0.5)
+            time.sleep(0.5)
             root.after(0, overlay.close)
             root.after(10, lambda: ResultDialog(root,
                 "Descarga completada",
@@ -240,8 +241,13 @@ def download_and_extract(root):
 
 # ── Ejecución ────────────────────────────────────────────────────────────────
 
-def run_scrcpy(root):
-    """Ejecuta scrcpy. Validaciones en main thread, lanzamiento en background."""
+def run_scrcpy(root, record_path=None, on_started=None):
+    """Ejecuta scrcpy. Validaciones en main thread, lanzamiento en background.
+
+    Args:
+        on_started: callable(pid) que se invoca en el main thread
+                    justo después de que scrcpy arranca.
+    """
     global scrcpy_process
     from app.ui.dialogs import ResultDialog, ConfirmDialog
     from app.core.adb import run_adb
@@ -255,11 +261,9 @@ def run_scrcpy(root):
         return
 
     # Verificar dispositivo conectado (rápido, main thread OK)
+    from app.core.device import check_connection
     try:
-        stdout, _, _ = run_adb(["devices"])
-        lines = stdout.splitlines()
-        has_device = any("device" in l and "offline" not in l for l in lines[1:])
-        if not has_device:
+        if not check_connection():
             ResultDialog(root, "Sin dispositivo",
                 "No hay ningún dispositivo conectado.\n"
                 "Conecte un dispositivo por USB o Wi-Fi\nantes de transmitir.",
@@ -312,10 +316,10 @@ def run_scrcpy(root):
             pass
 
         # 2) Xiaomi/POCO check — avisar en main thread, esperar aceptación
+        from app.core.device import get_manufacturer, needs_security_debug_warning
         try:
-            stdout, _, _ = run_adb(["shell", "getprop", "ro.product.manufacturer"])
-            mfg = stdout.strip().lower()
-            if any(x in mfg for x in ["xiaomi", "redmi", "poco", "realme", "oppo", "vivo"]):
+            mfg = get_manufacturer()
+            if needs_security_debug_warning(mfg):
                 import threading as _th
                 done_event = _th.Event()
 
@@ -336,9 +340,16 @@ def run_scrcpy(root):
 
         # 3) Lanzar scrcpy
         try:
+            cmd = [path]
+            if record_path:
+                cmd.extend(["--record", record_path])
+
             scrcpy_process = subprocess.Popen(
-                [path], creationflags=subprocess.CREATE_NO_WINDOW,
+                cmd, creationflags=subprocess.CREATE_NO_WINDOW,
             )
+            if on_started:
+                pid = scrcpy_process.pid
+                root.after(0, lambda: on_started(pid))
         except Exception as e:
             root.after(0, lambda: ResultDialog(root,
                 "Error", "No se pudo iniciar scrcpy.",

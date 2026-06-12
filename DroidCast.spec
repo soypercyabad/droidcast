@@ -1,5 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
+import customtkinter
+import os
 
+customtkinter_path = os.path.dirname(customtkinter.__file__)
 
 a = Analysis(
     ['main.py'],
@@ -8,6 +11,7 @@ a = Analysis(
     datas=[
         ('app', 'app'),
         ('assets', 'assets'),
+        (os.path.join(customtkinter_path, "assets"), "customtkinter/assets"),
     ],
     hiddenimports=[],
     hookspath=[],
@@ -38,6 +42,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['assets/robot.ico'],
+    icon='assets/robot.ico',
 )
 
